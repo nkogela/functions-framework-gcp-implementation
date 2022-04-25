@@ -15,6 +15,9 @@ Workflow:
 3. Send Dynamic message to Slack Channel using Slack-Bolt API for python
 
 Steps:
+Install functions-framework by running below command:-
+pip install functions-framework
+
 1. Create your virtual environment:
 python3 -m venv .venv
 
