@@ -58,7 +58,7 @@ def notify_slack(message):
             print("Trying Alternate method")
             import os
             cmd = 'curl -X POST -H \"Content-type: application/json\" --data ' + '"{}"'.format(
-                message) + " " + slack_webhook
+                message[1:-1]) + " " + slack_webhook
             print(cmd)
             os.system(cmd)
         else:
