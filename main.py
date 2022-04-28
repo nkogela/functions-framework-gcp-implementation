@@ -2,6 +2,7 @@ import functions_framework
 import urllib3
 import json
 import traceback
+from flask import current_app, escape
 
 # import os
 # import flask
@@ -18,27 +19,30 @@ def notify_to_slack(request):
     :param request: Most Likely a json as a string
                     request (flask.Request): The request object.
                     <http://flask.pocoo.org/docs/1.0/api/#flask.Request>
-
                     slack webhook can be set through request parameters
     :return: success String as per need
     """
 
-    # Default Arguments
-    message_payload = {}
-    request_args = request.args
-    if request_args and "data" in request_args:
-        message_payload = request_args["data"]
-        # Converting to String
-        message_payload = str(message_payload)
+    message_payload = str(request.data)[1:]
+
+    # Fix for Windows
+    import platform
+    os_name = platform.system()
+    if os_name.lower() == 'windows':
+        message_payload = message_payload.replace('"', '\\\"')
+        print('os name is windows')
+
+    print(message_payload)
 
     notify_slack(message_payload)
-    return 'Success'
+
+    return message_payload
 
 
 # Send Slack notification based on the given message
 def notify_slack(message):
     try:
-        slack_message = str({'text': message})
+        slack_message = str(message)
         print(slack_message)
         http = urllib3.PoolManager()
         response = http.request('POST',
@@ -53,7 +57,8 @@ def notify_slack(message):
         if response.status != 200:
             print("Trying Alternate method")
             import os
-            cmd = 'curl -X POST -H \"Content-type: application/json\" --data \"{\\\"text\\\":\\\"' + str(message) + '\\\"}\"' + " " + slack_webhook
+            cmd = 'curl -X POST -H \"Content-type: application/json\" --data ' + '"{}"'.format(
+                message) + " " + slack_webhook
             print(cmd)
             os.system(cmd)
         else:
@@ -72,5 +77,3 @@ functions_framework --target=notify_to_slack --host=<The host on which the Funct
 --port=<The port on which the Functions Framework listens for requests> \
 --source=<file containing function. by default main.py>
 """
-
-# Command to Run - curl -X POST http://127.0.0.1:8080 -H "Content-Type: application/json" -d \"{\\\"slack_info\\\":{\\\"enable": \\\"False\\\", \\\"channel_name\\\":\\\"#paidmedia_notification\\\"}}\"
