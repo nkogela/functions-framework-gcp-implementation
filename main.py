@@ -2,14 +2,9 @@ import functions_framework
 import urllib3
 import json
 import traceback
-from flask import current_app, escape
+import platform
 
-# import os
-# import flask
-# from slack_bolt import App
-# from slack_bolt.adapter.socket_mode import SocketModeHandler
-
-slack_webhook: str = 'https://hooks.slack.com/services/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'
+slack_webhook: str = 'https://hooks.slack.com/services/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'
 
 
 @functions_framework.http
@@ -26,13 +21,9 @@ def notify_to_slack(request):
     message_payload = str(request.data)[1:]
 
     # Fix for Windows
-    import platform
     os_name = platform.system()
     if os_name.lower() == 'windows':
         message_payload = message_payload.replace('"', '\\\"')
-        print('os name is windows')
-
-    print(message_payload)
 
     notify_slack(message_payload)
 
@@ -50,15 +41,13 @@ def notify_slack(message):
                                 body=json.dumps(slack_message),
                                 headers={'Content-Type': 'application/json'},
                                 retries=False)
-
-        print("trying to Push to Slack...")
-        print(response.status)
-        print(message)
         if response.status != 200:
             print("Trying Alternate method")
             import os
+            if platform.system().lower() == 'windows':
+                message = message[1:-1]
             cmd = 'curl -X POST -H \"Content-type: application/json\" --data ' + '"{}"'.format(
-                message[1:-1]) + " " + slack_webhook
+                message) + " " + slack_webhook
             print(cmd)
             os.system(cmd)
         else:
