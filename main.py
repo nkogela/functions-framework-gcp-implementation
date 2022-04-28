@@ -38,7 +38,7 @@ def notify_to_slack(request):
 # Send Slack notification based on the given message
 def notify_slack(message):
     try:
-        slack_message = {'text': message}
+        slack_message = str({'text': message})
         print(slack_message)
         http = urllib3.PoolManager()
         response = http.request('POST',
@@ -49,10 +49,11 @@ def notify_slack(message):
 
         print("trying to Push to Slack...")
         print(response.status)
+        print(message)
         if response.status != 200:
             print("Trying Alternate method")
             import os
-            cmd = 'curl -X POST -H \"Content-type: application/json\" --data \"{\\\"text\\\":\\\"' + message + '\\\"}\"' + " " + slack_webhook
+            cmd = 'curl -X POST -H \"Content-type: application/json\" --data \"{\\\"text\\\":\\\"' + str(message) + '\\\"}\"' + " " + slack_webhook
             print(cmd)
             os.system(cmd)
         else:
