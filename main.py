@@ -52,7 +52,7 @@ def notify_slack(message):
         if response.status != 200:
             print("Trying Alternate method")
             import os
-            cmd = f'curl -X POST -H \"Content-type: application/json\" --data \"{\\\"text\\\":\\\"{message}\\\"}\"' + " " + slack_webhook
+            cmd = 'curl -X POST -H \"Content-type: application/json\" --data \"{\\\"text\\\":\\\"' + message + '\\\"}\"' + " " + slack_webhook
             print(cmd)
             os.system(cmd)
         else:
